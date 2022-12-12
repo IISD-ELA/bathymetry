@@ -1,0 +1,249 @@
+{
+  "type" : "CIMLayerDocument",
+  "version" : "3.0.0",
+  "build" : 36056,
+  "layers" : [
+    "CIMPATH=106_la___contours_map__colour_/lake_106_la_raster2.json"
+  ],
+  "layerDefinitions" : [
+    {
+      "type" : "CIMRasterLayer",
+      "name" : "RasterDEM",
+      "uRI" : "CIMPATH=106_la___contours_map__colour_/lake_106_la_raster2.json",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant"
+      },
+      "metadataURI" : "CIMPATH=Metadata/c31008a97db03fafbd6900f02a659d4c.xml",
+      "useSourceMetadata" : true,
+      "description" : "Lake_106_LA_Raster",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface",
+        "elevationSurfaceLayerURI" : "CIMPATH=Map/76d6d8517a9043bea374e4a9774cbf2c.json"
+      },
+      "expanded" : true,
+      "layerType" : "Operational",
+      "showLegends" : true,
+      "visibility" : true,
+      "displayCacheType" : "Permanent",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "allowDrapingOnIntegratedMesh" : true,
+      "dataConnection" : {
+        "type" : "CIMStandardDataConnection",
+        "workspaceConnectionString" : "DATABASE=..\\..\\..\\Data\\DEMs (rasters)\\DEMsRasters.gdb",
+        "workspaceFactory" : "FileGDB",
+        "dataset" : "Lake_106_LA_Raster_DEM",
+        "datasetType" : "esriDTRasterDataset"
+      },
+      "colorizer" : {
+        "type" : "CIMRasterClassifyColorizer",
+        "resamplingType" : "NearestNeighbor",
+        "noDataColor" : {
+          "type" : "CIMRGBColor",
+          "values" : [
+            255,
+            255,
+            255,
+            0
+          ]
+        },
+        "normalizationType" : "Nothing",
+        "classBreaks" : [
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : -1.5,
+            "label" : "-1.592 - -1.5",
+            "color" : {
+              "type" : "CIMHSVColor",
+              "values" : [
+                213.19,
+                92.159999999999997,
+                40,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : -1.25,
+            "label" : "-1.499 - -1.25",
+            "color" : {
+              "type" : "CIMHSVColor",
+              "values" : [
+                213.19,
+                76.799999999999997,
+                50,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : -1,
+            "label" : "-1.249 - -1",
+            "color" : {
+              "type" : "CIMHSVColor",
+              "values" : [
+                213.19,
+                61.439999999999998,
+                60,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : -0.75,
+            "label" : "-0.999 - -0.75",
+            "color" : {
+              "type" : "CIMHSVColor",
+              "values" : [
+                213.19,
+                46.079999999999998,
+                70,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : -0.5,
+            "label" : "-0.749 - -0.5",
+            "color" : {
+              "type" : "CIMHSVColor",
+              "values" : [
+                213.19,
+                30.719999999999999,
+                80,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : -0.25,
+            "label" : "-0.499 - -0.25",
+            "color" : {
+              "type" : "CIMHSVColor",
+              "values" : [
+                213.19,
+                15.359999999999999,
+                90,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "label" : "-0.249 - 0",
+            "color" : {
+              "type" : "CIMHSVColor",
+              "values" : [
+                213.19,
+                0,
+                100,
+                100
+              ]
+            }
+          }
+        ],
+        "classificationMethod" : "DefinedInterval",
+        "colorRamp" : {
+          "type" : "CIMMultipartColorRamp",
+          "colorRamps" : [
+            {
+              "type" : "CIMPolarContinuousColorRamp",
+              "colorSpace" : {
+                "type" : "CIMICCColorSpace",
+                "url" : "Default RGB"
+              },
+              "fromColor" : {
+                "type" : "CIMHSVColor",
+                "values" : [
+                  213.19,
+                  92.159999999999997,
+                  40,
+                  100
+                ]
+              },
+              "toColor" : {
+                "type" : "CIMRGBColor",
+                "values" : [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              },
+              "interpolationSpace" : "HSV",
+              "polarDirection" : "Clockwise"
+            }
+          ],
+          "weights" : [
+            1
+          ]
+        },
+        "field" : "Value",
+        "minimumBreak" : -1.5930522680282593,
+        "showInAscendingOrder" : true,
+        "numberFormat" : {
+          "type" : "CIMNumericFormat",
+          "alignmentOption" : "esriAlignLeft",
+          "alignmentWidth" : 12,
+          "roundingOption" : "esriRoundNumberOfDecimals",
+          "roundingValue" : 3,
+          "useSeparator" : true
+        }
+      }
+    }
+  ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/c31008a97db03fafbd6900f02a659d4c.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20221103</CreaDate><CreaTime>11491200</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Lake_106_LA_Raster</resTitle></idCitation><idAbs>Lake_106_LA_Raster</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+    }
+  ],
+  "rGBColorProfile" : "sRGB IEC61966-2.1",
+  "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2",
+  "elevationSurfaceLayerDefinitions" : [
+    {
+      "type" : "CIMElevationSurfaceLayer",
+      "name" : "Ground",
+      "uRI" : "CIMPATH=Map/76d6d8517a9043bea374e4a9774cbf2c.json",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant"
+      },
+      "useSourceMetadata" : true,
+      "description" : "Ground",
+      "expanded" : true,
+      "layerType" : "Operational",
+      "showLegends" : false,
+      "visibility" : true,
+      "displayCacheType" : "Permanent",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "allowDrapingOnIntegratedMesh" : true,
+      "elevationMode" : "BaseGlobeSurface",
+      "verticalExaggeration" : 1,
+      "color" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          255,
+          255,
+          255,
+          100
+        ]
+      },
+      "surfaceTINShadingMode" : "Smooth"
+    }
+  ]
+}
