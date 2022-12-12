@@ -1,0 +1,6 @@
+﻿characteristic_name,result_value,depth_upper,depth_lower
+area_surface,,zero,zero
+volume_total,,zero,max_depth
+depth_max,,max_depth,max_depth
+depth_mean,,zero,max_depth
+perimeter_surface,,zero,zero
