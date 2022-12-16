@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: If you use any parts of this repository, please cite it using this information.
 title: IISD-ELA Bathymetry Data Processing Repository
+message: If you use any parts of this repository, please cite it using this information.
 abstract: Materials for a bathymetry processing method that takes in raw coordinate data and puts out useful data products (geospatial lake polygon, contour lines, and DEM; tabular data; map PDFs).
 authors:
   - family-names: Hay
@@ -8,8 +8,8 @@ authors:
     orcid: https://orcid.org/0000-0002-5971-8901
     affiliation: IISD Experimental Lakes Area
     email: chay@iisd-ela.org
-version: 15
+version: 15.0
 date-released: "2022-12-12"
-license: Creative Commons Attribution 4.0 International
+license: CC-BY-4.0
 license-url: https://creativecommons.org/licenses/by/4.0/
 repository-code: "https://github.com/IISD-ELA/bathymetry"
