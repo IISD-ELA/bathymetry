@@ -10,6 +10,6 @@ authors:
     email: chay@iisd-ela.org
 version: 15.0
 date-released: "2022-12-12"
-license: CC-BY-4.0
+license: cc-by-4.0
 license-url: https://creativecommons.org/licenses/by/4.0/
 repository-code: "https://github.com/IISD-ELA/bathymetry"
