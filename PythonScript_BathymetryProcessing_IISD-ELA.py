@@ -97,10 +97,10 @@ final_raster_dems_gdb = final_outputs_path + r'\Bathymetry\Data\DEMs (rasters)\D
 final_contours_gdb = final_outputs_path + r'\Bathymetry\Data\Contours (geospatial line files)\Contours.gdb'
 
 ## Maps folder (Bathymetry > Data - on SharePoint)
-final_maps_folder = final_outputs_path + r'\Bathymetry\Data\Maps\Current ELA'
+final_maps_folder = final_outputs_path + r'\Bathymetry\Data\Maps\Current\IISD-ELA'
 
 ## CSVs folder (Database > Data > Data to Upload > Bathy - on SharePoint)
-final_csvs_folder = final_outputs_path + r'\Database\Data and Metadata\Data\Data to Upload\Bathy'
+final_csvs_folder = final_outputs_path + r'\Database\Data and Metadata\Data\Data to Upload\Lim\Lim - bathy'
 
 
 ## Inputs paths
@@ -166,7 +166,7 @@ arcpy.conversion.FeatureClassToFeatureClass('Lake_Sel_UTM', intmd_gdb, 'Lake_' +
 ## Convert transect points from csv to geospatial points
 
 # Convert associated transect coordinates csv table into geospatial points feature class (note that here you need os.path.join as Python workaround since backslash reserved for escapes)
-arcpy.defense.CoordinateTableToPoint(os.path.join(transects_path, lake_name) + '.csv', 'Lake_Points', 'x', 'DD_2','y',arcpy.SpatialReference('WGS 1984'))
+arcpy.defense.CoordinateTableToPoint(os.path.join(transects_path, lake_name + '.csv'), 'Lake_Points', 'x', 'DD_2', 'y', arcpy.SpatialReference('WGS 1984'))
 
 # Project points coordinate system to UTM
 arcpy.management.Project('Lake_Points', 'Lake_Points_UTM',arcpy.SpatialReference('NAD 1983 UTM Zone 15N'))
