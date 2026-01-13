@@ -44,12 +44,12 @@ lake_name_space_quotes = "'" +  lake_num + " " + lake_sub + "'"
 ## Metadata (this is used to populate fields in the table for step 4)
 # External users (outside of IISD-ELA) will not understand the codes and initials used here, and the Google Sheet links will not work - you will have to make your own
 # Most of the metadata values are available and should be copied from the file "Bathymetry Lake Survey Metadata_YYYY-MM-DD.xlsx", stored under SharePoint > ELA > Bathymetry > Metadata > LakeSurveying
-# Master definitions (most trustworthy, updated) are in the IISD-ELA Data Dictionary: https://docs.google.com/spreadsheets/d/1mmCWmmsqkETSPaKjJ8EY9sornfC-6DifAap51m2godY/edit#gid=0
+# Master definitions (most trustworthy, updated) are in the IISD-ELA Data Dictionary (a Google Sheet internal to IISD-ELA, on their Google account)
 # Things that change more often lake to lake / run to run:
 activity_start_date = '2022-08-15' # 'YYYY-MM-DD' date collected/sampled in field - "survey start date" from "IISD-ELA bathymetry metadata"
 activity_end_date = '2022-08-15' # YYYY-MM-DD "survey end date" from "IISD-ELA bathymetry metadata"
 monitoring_location_name = lake_name_space # Established in variables above (leave this as is!)
-collected_by = 'UNK' # Researcher who was in the field / on the lake - "collected_by" in metadata sheet - userid (unique designation) from https://docs.google.com/spreadsheets/d/1YmwXRWOfR2mlMTZIOEzj0nYiCCt7KcDVZa02OmRRCxc/edit#gid=1069795151
+collected_by = 'UNK' # Researcher who was in the field / on the lake - "collected_by" in metadata sheet - userid (unique designation) from ref_researchers internal table
 update_date = '2022-12-08' # 'YYYY-MM-DD' current date running this script
 lake_level_m = '53.580' # Copy from "IISD-ELA bathymetry metadata"
 benchmark_id  = '23' # Copy from "IISD-ELA bathymetry metadata"
@@ -57,14 +57,14 @@ lake_level_m_asl = '414' # Copy from "IISD-ELA bathymetry metadata"
 lake_level_asl_method = 'The benchmarks for L 303 and 304 are tied in to the master benchmark, which allows an estimate of elevation..' # Copy from "IISD-ELA bathymetry metadata"
 general_comment = 'Lake levels asl are estimates and not accurately measured (to approx. 1 m).' # Copy from "IISD-ELA bathymetry metadata"
 # Check these too, but know that they commonly or always stay the same.
-dataset_code = 'B01' # Will always be this (general data set name for bathy tabular summary, volume, and area data) - code from https://docs.google.com/spreadsheets/d/1YmwXRWOfR2mlMTZIOEzj0nYiCCt7KcDVZa02OmRRCxc/edit#gid=627326291
-method_sample_code = 'BFF' # Corresponds with "method sample" from metadata sheet and code from https://docs.google.com/spreadsheets/d/1YmwXRWOfR2mlMTZIOEzj0nYiCCt7KcDVZa02OmRRCxc/edit#gid=1092893358
-method_process_code = 'BAP' # Will always be this if running this script. code from https://docs.google.com/spreadsheets/d/1YmwXRWOfR2mlMTZIOEzj0nYiCCt7KcDVZa02OmRRCxc/edit#gid=140073216
-entered_by = 'LEH' # Typically Lee (whoever gets GPS points from fish finder into csv) - "entered_by" in metadata sheet - initials (unique designation) from https://docs.google.com/spreadsheets/d/1YmwXRWOfR2mlMTZIOEzj0nYiCCt7KcDVZa02OmRRCxc/edit#gid=1069795151
-processed_by = 'CRJH' # Official initials of you running this script - make sure match unique designation from https://docs.google.com/spreadsheets/d/1YmwXRWOfR2mlMTZIOEzj0nYiCCt7KcDVZa02OmRRCxc/edit#gid=1069795151
-validated_by = '' # As of writing this, no general defined validation process in place, so leave blank, but eventually - initials (unique designation) from https://docs.google.com/spreadsheets/d/1YmwXRWOfR2mlMTZIOEzj0nYiCCt7KcDVZa02OmRRCxc/edit#gid=1069795151
-approved_by = '' # As of writing this, no approval process in place, so leave blank, but eventually - initials (unique designation) from https://docs.google.com/spreadsheets/d/1YmwXRWOfR2mlMTZIOEzj0nYiCCt7KcDVZa02OmRRCxc/edit#gid=1069795151
-gear_type_code = 'F12' # Corresponds with "survey equipment" from metadata sheet and code from https://docs.google.com/spreadsheets/d/1YmwXRWOfR2mlMTZIOEzj0nYiCCt7KcDVZa02OmRRCxc/edit#gid=1295028502
+dataset_code = 'B01' # Will always be this (general data set name for bathy tabular summary, volume, and area data) - code from ref_dataset internal table
+method_sample_code = 'BFF' # Corresponds with "method sample" from metadata sheet and code from ref_method_sample internal table
+method_process_code = 'BAP' # Will always be this if running this script. code from ref_method_process internal table
+entered_by = 'LEH' # Typically Lee (whoever gets GPS points from fish finder into csv) - "entered_by" in metadata sheet - initials (unique designation) from ref_researchers internal table
+processed_by = 'CRJH' # Official initials of you running this script - make sure match unique designation from ref_researchers internal table
+validated_by = '' # As of writing this, no general defined validation process in place, so leave blank, but eventually - initials (unique designation) from ref_researchers internal table
+approved_by = '' # As of writing this, no approval process in place, so leave blank, but eventually - initials (unique designation) from ref_researchers internal table
+gear_type_code = 'F12' # Corresponds with "survey equipment" from metadata sheet and code from ref_gear_type internal table
 
 
 ## File paths for key locations
@@ -146,6 +146,7 @@ aprx = arcpy.mp.ArcGISProject('CURRENT')
 aprx.defaultGeodatabase = intmd_gdb
 arcpy.env.workspace = intmd_gdb
 
+# When you are done running part 1, please continue working on the script part 2 (below) until the STOP section (at which point you should go back to the How To document for manual work).
 
 ######################################################################################################
 
@@ -249,6 +250,7 @@ for lyr in aprx.listMaps(aprx.activeMap.name)[0].listLayers():
 
 # Get rid of any potential edge errors > 0 by converting them to 0
 # Note that the Raster Calculator tool in Python looks different from typical tool scripts, but this should work.(note - raster calculator in Python is unusual / hard to get working - but this worked!)
+# Note this will fail if there is already a copy there (raster with same name).
 # You need the Spatial Analyst license for this tool, this is why we load it at the start: from arcpy.sa import *
 out_raster3 = Con(Raster("Raster_FocalStats") > 0, 0, Raster("Raster_FocalStats"))
 out_raster3.save(intmd_gdb + r"\Raster_Zero")

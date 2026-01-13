@@ -8,11 +8,11 @@ authors:
     orcid: https://orcid.org/0000-0002-5971-8901
     affiliation: IISD Experimental Lakes Area
     email: chay@iisd-ela.org
-version: 15.1
+version: 15.2
 date-released: "2022-12-12"
 license: cc-by-4.0
 license-url: https://creativecommons.org/licenses/by/4.0/
 repository-code: "https://github.com/IISD-ELA/bathymetry"
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.7448453
+    value: 10.5281/zenodo.18237230
