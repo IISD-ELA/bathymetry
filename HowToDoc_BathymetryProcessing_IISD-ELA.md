@@ -2,7 +2,7 @@
 Companion to the Bathymetry Processing Python Script  
 Produced by: Chris Hay, Scientific Data Manager, IISD-ELA  
 For: International Institute for Sustainable Development Experimental Lakes Area  
-Last modified: 2026-01-13  
+Last modified: 2026-05-29  
 
 ## Contents
 
@@ -25,20 +25,22 @@ Last modified: 2026-01-13
 
 # Setting Up – Before the Script
 
-Bathymetric data processing may be done by the IISD-ELA Scientific Data Officer, other permanent staff, or contracted staff. Documentation has been written with this in mind, and that of a general audience external to IISD-ELA to share the methods used.
+Bathymetric data processing may be done by any IISD-ELA data staff. Documentation has been written with this in mind, but also for a general audience external to IISD-ELA, in case the methods are useful for inspiration or as a reference.
 
 ## Prep the Input CSVs
 
-For IISD-ELA staff or assistants, if bathymetry surveys have been conducted and you have been directed to do this processing, you should find a collection of raw csv files in the dropbox folder here:
+Our staffmember who manages bathymetry data colletion in the field is Lee. She gets the raw data files from the instrument, does some preliminary cleanup and formatting, and then puts the CSV files (one for each lake) in a folder for her on our internal SharePoint, here:
 
-SharePoint \> Global Shared Files \> ELA \Bathymetry\Data\Transects\Tabular\Lee dropbox
+SharePoint \> ELA Science Hub \> \Bathymetry\Data\Transects\Tabular\Lee
 
-Check to confirm the raw csv files follow the formatting conventions described below.
+* Download the files.
+* Check to confirm the raw csv files follow the formatting conventions described below, and that the numbers look reasonable.
+* Remember to remove the files from the folder, so it's empty and ready for next time Lee has files to add.
 
 Input transect CSV files must be named as monitoring location, underscore, monitoring sublocation, e.g., “106_LA.csv”. Two digit or four digit lakes should be typed as they are – e.g., 93_LA not 093_LA. The CSV files must be formatted as having three columns, named “y”, “x”, and “z”, where:
 - y = Latitude in decimal degrees.
 - x = Longitude in decimal degrees.
-- z = Depth in metres. All or most of the values should be negative (there may be a few outliers, which will be removed later in the script). This is what the script will expect.
+- z = Depth in metres. All or most of the values should be **negative** (there may be a few outliers, which will be removed later in the script). This is what the script will expect.
 - <img src="./media/image1.png" width = 180 alt="Screenshot of part of a coordinates table in Excel, for example. The columns are: y, x, z. The first row is: 49.68915, -93.712, -0.57."/>
 
 If the z values are positive, not negative, it is easy to fix in Excel:
@@ -51,63 +53,64 @@ If the z values are positive, not negative, it is easy to fix in Excel:
 
 ## ArcGIS Pro Project
 
-*Option A. – IISD SharePoint connection available*
+Create a shortcut that links the SharePoint Bathymetry folder onto your OneDrive \> Documents folder. That way, work can be done locally and changes will sync to SharePoint.
+* From your browser, on the ELA Hub \> Documents, right click Bathymetry \> Add shortcut to OneDrive.
+* Go to your files and you'll see the new shortcut. Rename it from "ELA Science - Bathymetry" to simply "Bathymetry".
+* Move it into your Documents folder.
+- <img src="./media/image3.png" width = 450 alt="Screenshot showing the Bathymetry shortcut in the Documents folder." />
 
-Create a shortcut that links the SharePoint Bathymetry folder onto the OneDrive or local PC of the person doing the processing. That way, work can be done locally and changes will sync to SharePoint.
-- <img src="./media/image3.png" width = 450 alt="Graphical user interface, text, application, email Description automatically generated" />
+Under Bathymetry \> Workspaces, find the subfolder with your name or create a new one if needed. This is where you will do your work.
 
-Under Bathymetry \> Workspaces, create a new folder with your name.
-
-The person carrying out the processing should be logged into ArcGIS Pro and have access to the IISD ArcGIS Online organization. This is necessary to access the best lakes polygon GIS file currently available ("ELA_LakesALL20141030" on ArcGIS Online). If the person carrying out the processing does not have access to this, as a workaround someone from IISD-ELA who does have access should create a copy to send to them (as a shapefile or feature class in a geodatabase), and the person carrying out the processing will need to alter the script to refer to their local copy instead of pulling from ArcGIS Online.
+The person carrying out the processing should be logged into ArcGIS Pro and have access to the IISD ArcGIS Online organization. This is necessary to access the best lakes polygon GIS file currently available ("ELA_LakesALL20141030" on ArcGIS Online). If the person carrying out the processing does not have access to this, as a workaround someone from IISD-ELA who does have access should create a copy to send to them (as a shapefile or feature class in a geodatabase), and the person carrying out the processing will need to alter that particular line in the script, to refer to their local copy instead of pulling from ArcGIS Online.
 
 Set up your workspace:
-- In the “YourName” workspace folder, do the following:
+- In the “YourName” workspace folder, if this hasn't been done already, do the following:
   - Create a subfolder named “Inputs” with the following inside:
     - Create a subfolder named “InputTransects”
-      - Paste all input CSV files into this folder (the input CSVs are from Bathymetry \> Data \> Transects \> Tabular \> Lee dropbox)
+      - Paste all input CSV files into this folder (the ones you downloaded and checked in the steps above, from Lee's folder)
     - Create a subfolder named “TemplateTables”
       - Paste copies of the three template tables (from Bathymetry\Workspaces\TransectsProcessingPipeline\Inputs\TemplateTables)
         - bathy_db_data_table_template.csv
         - bathy_db_meta_table_template.csv
         - bathy_summary_stats_table_template.csv
 
-Start new project on ArcGIS Pro:
+Start a new project on ArcGIS Pro:
 - Open ArcGIS Pro (log in to your account, if needed)
 - Under “New Project” choose “Map”
 - In the popup:
-  - Name: Enter the name of the workspace folder you created earlier
+  - Name: Enter the name of the workspace folder you created earlier (Your Name)
   - Location: Paste the folder path location of your workspace
-  - Uncheck “Create a new folder for this project”
-  - <img src="./media/image4.png" width = 610 alt="A screenshot of a computer Description automatically generated" />
+  - Uncheck “Create a new folder for this project” (we've already created the folder we want the project in)
+  - OK
+  - <img src="./media/image4.png" width = 610 alt="Screenshot of the GUI when you open ArcGIS Pro, showing to click the Map icon and then the pop up with text inputs for creating the project." />
 
 ## How to run the script
 
-Locate the python script file (“PythonScript_BathymetryProcessing_IISD-ELA.py”) or access the script from GitHub. It is easiest to download or copy the script locally to work within, and best practice is to save a copy of the script for each lake that is processed. Avoid modifying the original script file or GitHub repository (unless if you are making improvements that would apply to all future uses). Ideally the script copy will be open in a second monitor to the side, for easy access to editing variables and copy lines of script (to paste into the ArcGIS Python window and execute).
+* Locate the python script file (“PythonScript_BathymetryProcessing_IISD-ELA.py”) or access the script from GitHub (it should be next to this ReadMe.md).
+* Download the script and save a copy for each lake you'll process (rename with lake name at end). Avoid modifying the original script file or GitHub repository, unless if you are intentionally making improvements that would apply to all future uses.
+* Ideally, open your script copy in a second monitor to the side for easy access, to edit variables and copy lines of script (to paste into the ArcGIS Python window and execute).
 
-The script must be run in a live Python window within an ArcGIS Pro Project. This is required so certain lines of script will work correctly. For example:
+We will run the script in a Python terminal within an ArcGIS Pro Project. This is required so certain lines of script will work correctly. For example:  
+`aprx = arcpy.mp.ArcGISProject('CURRENT')`  
+*Note: Sometimes ArcGIS Python scripts can be run outside of a project in a separate python window, but this is not the case for this script.*  
 
-*aprx = arcpy.mp.ArcGISProject('CURRENT')*
+* Open the Python console window in your ArcGIS Pro Project if it is not open already (View \> Python window (under the “Windows” section of the tab).
+  * <img src="./media/image5.png" width = 590 alt="A screenshot of the top ribbon area in ArcGIS Pro, showing to click View and then Python Window." />
 
-Sometimes ArcGIS Python scripts can be run outside of a project in a separate python window, but this is not the case for this script.
+In later steps, you will run the script line by line or in small chunks by copying and pasting it into the Python window. It is recommended to go line by line or in small chunks to make sure any errors that pop up are easy to identify and resolve. After pasting in a line or chunk of script, use Ctrl + Enter to execute it. Before we run the script, we have to make some modifications so it's set up for the lake at hand.
 
-Open the Python console window in your ArcGIS Pro Project if it is not open already (View \> Python window (under the “Windows” section of the tab).
-
-- <img src="./media/image5.png" width = 590 alt="" />
-
-In later steps, you will run the script line by line or in small chunks by copying and pasting it into the Python window. It is recommended to go line by line or in small chunks to make sure any errors that pop up are easy to identify and resolve. After pasting in a line or chunk of script, use Ctrl + Enter to execute it. Do not run the script yet.
-
-- <img src="./media/image6.png" width = 680 alt="Calendar Description automatically generated with low confidence" />
+- <img src="./media/image6.png" width = 680 alt="A screenshot showing the Python window, with previously run lines of code and the box at the bottom where code will be pasted in and executed." />
 
 # Part 1: Variables
 
-Essentially this first part of the script involves defining variables. Follow instructions in the script comments (comment lines are always preceded with a number sign “#”) and edit the script directly (in the working copy), as required.
+Essentially this first part of the script involves defining variables. Follow instructions in the script comments (comment lines are always preceded with a number sign “#”) and edit the script directly as required (again, in your working copy, not the template script on GitHub).
 
 - Some variables are short and obvious (e.g., lake_num)
 - Some variables are longer, such as file or folder paths
   - Each script user will need to change directory paths so the script will run properly on their computer.
 - The lakes you will be processing should be evident from preparing (reviewing) the input csvs in the previous setup steps. The metadata for the lakes should be in the metadata Excel spreadsheet noted in the script comments in this section.
 
-When you finish part 1 of the script, continue into part 2 of the script until it says STOP (at which point you should return to the documentation here).
+Make the changes to this Part 1 of the script, and then run it in ArcGIS Pro. When you finish running part 1 of the script, continue running the script into part 2, until it says STOP (at which point you should return to the documentation here).
 
 # Part 2: Raster DEM
 
@@ -116,46 +119,50 @@ When you finish part 1 of the script, continue into part 2 of the script until i
 **Add World Imagery**
 - The World Imagery will be used to correct the lake shape from the inaccurate reference.
 - Add the satellite basemap by clicking Map \> Basemap \> Imagery.
-  - <img src="./media/image7.png" width = 680 alt="Graphical user interface, application, PowerPoint Description automatically generated" />
+  - <img src="./media/image7.png" width = 680 alt="Screenshot of ArcGIS Pro showing how to add world imagery by clicking Map, then Basemap, then Imagery." />
+- If you are having trouble loading the imagery, you can use other imagery instead (e.g. the NWOOP 2022 orthophotography), just make sure you cite that instead of the world imagery, in the metadata step later.
 
-**Get the lake polygon ready to work with**
-- Right click “Lake\_###\_AA_Polygon” and click Selection \> Make this the only selectable layer.
-  - <img src="./media/image8.png" width = 270 alt="A screenshot of a computer Description automatically generated" />
-- Change symbology so the layer easier to work with
-  - Once again right click “Lake\_###\_AA_Polygon” and click Symbology – a symbology window will appear on the right panel.
-  - On the panel there’s a symbology symbol box. Click the box to change it.
-  - Change the symbol to the 2pt (thicker) black outline template. Then click the Properties tab and change the symbol color to something easy to see (e.g., bright yellow)
-  - Click “Apply”
-  - Save
-  - <img src="./media/image9.png" width = 250 alt="Graphical user interface, application Description automatically generated" />
-- Turn off visibility on all of the other layers except for three layers that should be visible:
+**Get the lake polygon and points layers ready to work with**
+- Turn off visibility on all layers except for three layers that should be visible:
   - Lake\_###\_AA_Polygon
   - Lake_Points_UTM
   - World Imagery
-- Double check you are working with the right layer (“Lake\_###\_AA_Polygon”) and that it is the topmost layer.
-- World Imagery should always be on the bottom, as a base map.
+    - (World Imagery should always be on the bottom, as a base map.)
   - <img src="./media/image10.png" width = 170 alt="Graphical user interface, text, application, email Description automatically generated" />
+- For the lake polygon layer (“Lake\_###\_AA_Polygon”) change its symbology so that it's easier to work with
+  - Right click the layer and click Symbology – a symbology window will appear on the right panel.
+  - On the panel there’s a symbology symbol box. Click the box to change it.
+  - Change the symbol to the 2pt (thicker) black outline template. Then click the Properties tab and change the symbol color to something easy to see (e.g., bright yellow)
+  - Click “Apply”
+  - <img src="./media/image9.png" width = 250 alt="Graphical user interface, application Description automatically generated" />
+- On our points layer of interest (“Lake_Points_UTM”) change the symbology so it's easier to work with
+  - In the Symbology settings for the layer, change to "Primary symbology: Unclassed Colors” (dropdown at the top) and then “Field: z”.
+  - Choose a colour gradient that is easy to see against the backdrop and makes any outliers clearly visible. Switching from one gradient to another may be useful to double check. I like the bright cyan-blue-purple-pink option.
+- Save the project (Ctrl+S)
 
-**Outliers – check for, and remove**
-- Minimize “Lake\_###\_AA_Transect_Points” to avoid editing the wrong layer
+**Outlier points – check for, and remove**
+- We will work on **<span class="mark">“Lake_Points_UTM”</span> (important: not “Lake\_###\_AA_Transect_Points”)**.
+- Make that layer (“Lake_Points_UTM”) the only selectable layer (right click \> Selection \> Make this the only selectable layer)
+- Minimize “Lake\_###\_AA_Transect_Points” to avoid editing the wrong layer (click the little triangle to the left of the layer's name). This layer should also already have visibility turned off (unchecked box).
   - <img src="./media/image11.png" width = 290 alt="Graphical user interface, application Description automatically generated with medium confidence" />
-- Make the points layer (2nd from the top) the only selectable layer (right click \> Selection \> Make this the only selectable layer)
-- Work within the transect points layer **<span class="mark">“Lake_Points_UTM”</span> (important: not “Lake\_###\_AA_Transect_Points”)**. The goal is to prepare the points for the next step in the script. The “Lake\_###\_AA_Transect_Points” layer was a final output exported to a final output geodatabase, that should stay as a raw representation of the survey points collected (equivalent with the raw tabular coordinates).
-- Change the symbology to “Unclassed colours” and “Field: z”. Choose a colour gradient that is easy to see against the backdrop and makes any outliers clearly visible. Switching from one gradient to another may be useful to double check.
-- Examine the map to identify potential outliers. For example, below some potential candidates are circled in orange. A degree of personal best judgement is involved. Outliers that are removed should be assumed to be errors in the sonar survey technology or methods. Avoid removing what may be natural peaks or valleys in the data. Zoom in enough to ensure only outlier points are removed.
-  - <img src="./media/image12.png" width = 680 alt="A screenshot of a computer Description automatically generated with medium confidence" />
-- Use “Edit Vertices” to select points and the DEL keyboard key to remove the outliers.
-- Save edits and deselect all.
+  - The “Lake\_###\_AA_Transect_Points” layer was a final output exported to a final output geodatabase, that should stay as a raw representation of the survey points collected (equivalent with the raw tabular coordinates).
+- The goal now is to prepare “Lake_Points_UTM” for the next step in the script, by first removing outlier points.
+  - Examine the map to identify potential outliers. For example, in the below image, some potential candidates are circled in orange. A degree of personal best judgement is involved. Outliers that are removed should be assumed to be errors in the sonar survey technology or methods. Avoid removing what may be natural peaks or valleys in the data. Zoom in enough to ensure only outlier points are removed.
+    - <img src="./media/image12.png" width = 680 alt="A screenshot of a computer Description automatically generated with medium confidence" />
+  - On the top ribbon under "Edit" and then the "Tools" section, choose the “Edit Vertices” button to be able to select points to work with
+    - <img src="./media/image15.png" width = 620 alt="Graphical user interface, application Description automatically generated" />
+  - Under the "Selection" section and "Select" dropdown, I like to use the "Lasso" option, to circle around several outlier points at once, with the DEL keyboard key ready with my other hand. This is a good way to remove the outliers quickly.
+  - When done, clear any leftover selections ("Clear" button, under the "Selection" section in the Edit ribbon).
+  - Save your edits to the *feature class* (use the Save button that is in the Edit tab on the ribbon at the top, under the "Manage Edits" section near the left! This is different from the Save button used to save the *project*!).
 
 **Edit the lake polygon**
-- To select the lake polygon, make it the only selectable layer (like we did for the points layer before), then go to the Edit tab then click the select tool.
+- Now make “Lake\_###\_AA_Polygon” the only selectable layer (on the left Contents panel, right click “Lake\_###\_AA_Polygon” \> Selection \> Make this the only selectable layer).
+- Go to the Edit tab then click the select tool, if it's not already selected from before (you can continue to use the lasso select, or whatever you prefer).
   - <img src="./media/image13.png" width = 340 alt="Graphical user interface, application Description automatically generated" />
-- On the map, drag a rectangle over any part of the lake polygon to select it. Right click the selected polygon and choose “Edit Vertices”.
+- On the map, drag over any part of the lake polygon to select it. Right click the selected polygon and choose “Edit Vertices” (another option is to choose "Edit Vertices" from the top ribbon, like before).
   - <img src="./media/image14.png" width = 530 alt="" />
-- Another way to get to the same point is, after having selected the polygon on the map, click “Edit Vertices” from the top ribbon menu, under Edit \> Edit Vertices (under “Tools” section of tab).
-  - <img src="./media/image15.png" width = 620 alt="Graphical user interface, application Description automatically generated" />
-- Edit the vertexes to match the outline of the lake. Feel free to use other editing tools (e.g., “Reshape” with snapping turned on) instead, if preferred. Scroll down to the “Best practices and example” section in this document to see a visual example and for other important considerations while doing the editing, as well as the remaining points in this section.
-- Be sure to regularly “Finish” (F2) and Save edits (Edit \> Save)!
+- Edit the vertexes to match the outline of the lake. Feel free to use other editing tools instead (e.g., “Reshape” with snapping turned on"). Scroll down to the “Best practices and example” section in this document to see a visual example and for other important considerations while doing the editing, as well as the remaining points in this section.
+- Be sure to regularly “Finish” (F2) and Save edits to the feature class (Edit \> Save)!
   - <img src="./media/image16.png" width = 360 alt="Graphical user interface, application Description automatically generated" />
   - <img src="./media/image17.png" width = 380 alt="Graphical user interface, application, Word Description automatically generated" />
 - Some lake polygons may be “multipart”, meaning there are isolated sections not continuous with the main lake outline. In most cases only the main lake part should be kept.
@@ -173,7 +180,7 @@ When you finish part 1 of the script, continue into part 2 of the script until i
 - Then open the transect points layer’s attribute table (right click the layer in the contents panel \> attribute table) and examine how many got selected.
   - <img src="./media/image20.png" width = 420 alt="Map Description automatically generated" />
 - Re-edit the lake polygon outline layer as needed (or leave it as-is if no action needed).
-- Save
+- Save the feature class
 
 **Best practices and example**
 - For consistency between lakes, follow these best practices:
@@ -211,16 +218,17 @@ When you finish part 1 of the script, continue into part 2 of the script until i
 - If this isn’t working, ensure that the World Imagery metadata layer is selectable (right click \> Selection \> Make this the only selectable layer)
 
 - Record the metadata (to justify the lake outline) in the separate “LakePolygonMetadataImagerySource.xlsx” spreadsheet file.
-  - SharePoint \> ELA \> GIS\Data & Metadata\ELA Lakes\Polygons\Corrected\Metadata
+  - SharePoint \> ELA Science Hub \> \GIS\Data & Metadata\ELA Lakes\Polygons\Corrected(Bathy)\Metadata
     - “LakePolygonMetadataImagerySource.xlsx”
   - <img src="./media/image27.png" width = 590 alt="" />
 
 - Column information for the metadata spreadsheet:
-
   - feature_class_name = Name of the polygon feature class with corrected lake outline (stored in LakePolygonsCorrected.gdb)
   - monitoring_location = Lake number and sublocation (e.g. 310 LA)
-  - transect_survey_start_date = Date the bathymetry transect points raw were collected in the field. You'll find this in the metadata Excel file used to fill in other parts of the processing pipeline script's metadata. aka "activity_start_date" or "survey start date" (ignore end date)
+  - transect_survey_start_date = Date the bathymetry transect points raw were collected in the field. You'll find this in the metadata Excel file we used to fill in other parts of the processing pipeline script's metadata, also known as "activity_start_date" or "survey start date" (here we can ignore the end date).
   - imagery_* = Metadata for the imagery used as a reference
+
+- Read Parts 3 and 4 below for context, then switch back to the Python script to finish the Part 2 scripting steps. This should be line 217, or you can keyword search for `### Continue here onward with the script`. You can continue the scripting through parts 3 and 4, before returning to this document for Part 5.
 
 # Part 3: Contour Lines
 
@@ -228,13 +236,13 @@ No additional comments or instruction needed – follow the script and read the 
 
 # Part 4: Tabular
 
-The processing steps are done entirely in the script – follow the script and read the comments in the script. See the separate “information sheet” file for some additional explanation about tools used to derive interval and cumulative area and volume values for the tabular data.
+The processing steps are done entirely in the script – follow the script and read the comments in the script. If you'd like, you can read the separate bathymetry “information sheet” file for some additional explanation about tools used to derive interval and cumulative area and volume values for the tabular data.
+
+# Part 5: Maps
 
 The steps for Part 5 assume you have run parts 1-4 for each lake and then the FME Workbenches were ran to load those data into the IISD-ELA database’s collective bathymetry data and metadata tables. Those tables can then be exported for you to view as a tidy summaries of data for producing the map tables. An alternative is to run steps 1-5 for a lake before moving onto the next lake. In that case, you can find the values for the map tables by examining csv outputs from Part 4.
 
 Parts 1-4 can be run for one lake after another within the same ArcGIS Pro project created at the start of your work. Creating a new ArcGIS Pro project for each lake is unnecessary. As noted in the Part 5 instructions, Part 5 should always be done in the specified “BathyMapsWorkspace” project (not the ArcGIS Pro project used for Parts 1-4).
-
-# Part 5: Maps
 
 Note that the map production process does not involve any scripting.
 
@@ -245,7 +253,7 @@ Note that the map production process does not involve any scripting.
 - Open the ArcGIS Pro project “BathyMapsWorkspace”
   - Location: SharePoint \> ELA \> Bathymetry\Workspaces\BathyMapsWorkspace
   - Again, the notes here for “Part 0: Setting Up” apply… ideally you have a shortcut set up so this is easy, otherwise you will need to download the project folder, work locally, and then upload back to SharePoint overwriting the old version when you’re done (so SharePoint stays up to date)
-  - Instead of working in the “TransectsProcessingPipeline” folder and project (or whichever ArcGIS Pro project file you were working in) for parts 1 to 4, you will be working in the established “BathyMapsWorkspace”.
+  - Instead of working in the “TransectsProcessingPipeline” folder and project (or whichever ArcGIS Pro project file you were working in) for parts 1 to 4, you will be working in the established “BathyMapsWorkspace” ArcGIS Pro Project.
   - Parts 1 to 4 it doesn’t really matter which project you were working in (the project was just a space to work in, where inputs and exports are all outside of the .aprx project file), but for this Part 5 it does matter (maps and layouts we create are saved within the .aprx project file itself). That’s why if you have to download the project, it is important you re-upload it to SharePoint when you are done.
 - Insert a new map (Insert \> New Map \> New Map)
   - <img src="./media/image28.png" width = 360 alt="Graphical user interface, application Description automatically generated" />
@@ -464,7 +472,7 @@ The Black and White map is essentially done after copying the outline and contou
 
 **Create Black and White version of the table**
 
-Note: The below instructions worked in MS Paint in Windows 10, but this option was removed in Windows 11. If you are using Windows 11, you will have to find another way to convert the image to black and white. One option is to use this website: [https://blackandwhite.imageonline.co/](https://blackandwhite.imageonline.co/). Another option is to use photo editing software and change saturation to zero (e.g. the free [GNU Image Manipulation Program](https://www.gimp.org/).)
+Note: The below instructions worked in MS Paint in Windows 10, but this option was removed in Windows 11. If you are using Windows 11, you will have to find another way to convert the image to black and white. One option is to use this website: [https://tech-lagoon.com/imagechef/en/image-to-monochrome.html](https://tech-lagoon.com/imagechef/en/image-to-monochrome.html), with the threshold set to 90%. Another option (more difficult) is to use photo editing software (e.g. the free [GNU Image Manipulation Program](https://www.gimp.org/) - adjust to darken, then Image > Mode > Indexed > Use black and white (1-bit) palette). To clarify, the goal here is to get purely black and white (each pixel 100% white or 100% black; "1-bit"), not greyscale (multiple shades of grey, not just black and white, but often called "black and white").
 
 - Make Black and White versions at this stage – much faster than going back to do later.
   - After saving the colour version, click File \> Image Properties

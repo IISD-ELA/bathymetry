@@ -3,8 +3,8 @@
 ### Script for Bathymetry data processing to take raw transect data and produce useful outputs
 
 ### by Chris Hay, IISD-ELA
-### date: 2022-12-16
-### version: 15
+### date: 2026-05-29
+### version: 16
 
 ### Written for Python 3 using ArcGIS Pro
 ### The script must be run in an environment with access to arcpy (e.g., in ArcGIS Pro Project's Python window)
@@ -53,7 +53,7 @@ collected_by = 'UNK' # Researcher who was in the field / on the lake - "collecte
 update_date = '2022-12-08' # 'YYYY-MM-DD' current date running this script
 lake_level_m = '53.580' # Copy from "IISD-ELA bathymetry metadata"
 benchmark_id  = '23' # Copy from "IISD-ELA bathymetry metadata"
-lake_level_m_asl = '414' # Copy from "IISD-ELA bathymetry metadata"
+lake_level_m_asl = '414' # Copy from "IISD-ELA bathymetry metadata (if you don't have this, leave blank as '')"
 lake_level_asl_method = 'The benchmarks for L 303 and 304 are tied in to the master benchmark, which allows an estimate of elevation..' # Copy from "IISD-ELA bathymetry metadata"
 general_comment = 'Lake levels asl are estimates and not accurately measured (to approx. 1 m).' # Copy from "IISD-ELA bathymetry metadata"
 # Check these too, but know that they commonly or always stay the same.
@@ -70,38 +70,37 @@ gear_type_code = 'F12' # Corresponds with "survey equipment" from metadata sheet
 ## File paths for key locations
 ##   Make sure no \ at end, and must be in single quotes. Also, keep lowercase R, otherwise need to switch \ slash to / (Python rules).
 ##   See the How To document for some discussion on this. File paths will be different for each person running this script.
-
-## Base paths
+##   Edit the file paths below. Likely you will only need to change the user name and Workspace folder names, but double check folder names haven't changed.
 
 ## Project (ArcGIS Pro Project folder)
-prj_path = r'C:\Users\chay\OneDrive - IISD\Documents\Bathymetry\Workspaces\TransectsProcessingPipeline'
-
-## Final outputs path, that is, SharePoint > ELA (wherever locally storing OneDrive shortcut folders, or temp folders to manually upload to there later)
-final_outputs_path = r'C:\Users\chay\OneDrive - IISD\Documents'
-
+prj_path = r'C:\Users\chay\OneDrive - IISD\Documents\Bathymetry\Workspaces\Chris Hay'
 
 ## Final outputs paths
 # These are all locations that are not purged or overwritten in the script.
-# Copying outputs from intermediate to final locations is flagged where this occurs in the script, and manual checks are recommended at those points.
+# These are where all final outputs are stored for future long-term use, over years of surveys.
+# At points in the script where outputs are copied from the intermediate space to the final output space, there is a flag and manual checks are recommended.
+# To figure out what to enter here
 
-## Transects Geospatial Points (IISD-ELA) gdb
+## Final outputs (base) path. That is, the base path to specify more specific locations below (in SharePoint folders we assume you've created local shortcuts for!)
+final_outputs_path = r'C:\Users\chay\OneDrive - IISD\Documents'
+
+## Transects Geospatial Points (IISD-ELA) gdb (under Bathymetry > Data)
 transect_points_gdb = final_outputs_path + r'\Bathymetry\Data\Transects\Geospatial\TransectPointsIISDELA.gdb'
 
-## Corrected lakes polygons geodatabase (GIS > Data & Metadata - on SharePoint)
-corrected_lakes_gdb = final_outputs_path + r'\GIS\Data & Metadata\ELA Lakes\Polygons\Corrected\LakePolygons.gdb'
+## Corrected lakes polygons geodatabase (under GIS > Data & Metadata; create a GIS folder shortcut like we did for Bathymetry, if you haven't done so already!)
+corrected_lakes_gdb = final_outputs_path + r'\GIS\Data & Metadata\ELA Lakes\Polygons\Corrected(Bathy)\LakePolygons.gdb'
 
-## DEMs/Rasters geodatabase (Bathymetry > Data - on SharePoint)
-final_raster_dems_gdb = final_outputs_path + r'\Bathymetry\Data\DEMs (rasters)\DEMsRasters.gdb'
+## DEMs/Rasters geodatabase (under Bathymetry > Data)
+final_raster_dems_gdb = final_outputs_path + r'\Bathymetry\Data\DEMsRasters.gdb'
 
-## Contours geodatabase (Bathymetry > Data - on SharePoint)
-final_contours_gdb = final_outputs_path + r'\Bathymetry\Data\Contours (geospatial line files)\Contours.gdb'
+## Contours geodatabase (under Bathymetry > Data)
+final_contours_gdb = final_outputs_path + r'\Bathymetry\Data\Contours.gdb'
 
-## Maps folder (Bathymetry > Data - on SharePoint)
+## Maps folder (under Bathymetry > Data)
 final_maps_folder = final_outputs_path + r'\Bathymetry\Data\Maps\Current\IISD-ELA'
 
-## CSVs folder (Database > Data > Data to Upload > Bathy - on SharePoint)
-final_csvs_folder = final_outputs_path + r'\Database\Data and Metadata\Data\Data to Upload\Lim\Lim - bathy'
-
+## CSVs folder (under Data > Data > ToUpload > Bathy)
+final_csvs_folder = final_outputs_path + r'\Data\Data\ToUpload\Lim\Lim - bathy'
 
 ## Inputs paths
 
@@ -117,11 +116,15 @@ bathymetry_meta_template_table = prj_path + r"\Inputs\TemplateTables\bathy_db_me
 ## Bathymetry summary template table (schema, used for part 4 tabular work) - assumes is located under project location (change if needed)
 bathymetry_summary_template_table = prj_path + r"\Inputs\TemplateTables\bathy_summary_stats_table_template.csv"
 
-## URL for the best lakes polygon GIS file currently available
-# At the time of writing this script, this is "ELA_LakesALL20141030" on ArcGIS Online (here is the link, need /0 to specify it at end))
-# Make sure URL is in single quotes.
-best_lakes_polygon = 'https://services8.arcgis.com/bbOf746oOv9MFzD7/arcgis/rest/services/ELA_LakesALL20141030/FeatureServer/0'
-
+## Path for the best lakes polygon GIS file currently available
+# This is basically a polygon feature class (i.e., shapefile, collection of polygons) to use as a starting template.
+# The lake polygons have a lake name/number field, that will correspond with the lake name/number we specified.
+# The idea here is just to have some kind of starting approx polygon that can be selected out, for us to work with later.
+## Pick one of the two options below (whichever works or is easier for you; comment out the other)
+# Option 1 - URL to "ELA_LakesALL20141030" on our institutional ArcGIS Online. Need /0 to specify the feature class, at the end, make sure URL is in single quotes
+# best_lakes_polygon = 'https://services8.arcgis.com/bbOf746oOv9MFzD7/arcgis/rest/services/ELA_LakesALL20141030/FeatureServer/0'
+# Option 2 - Instead of from ArcGIS Online, use the copy in our GIS folder
+best_lakes_polygon = r"C:\Users\chay\OneDrive - IISD\Documents\GIS\Data & Metadata\ELA Lakes\Polygons\20141030_GG\ELA_LakesALL20141030_gg.shp"
 
 ## Intermediate workspaces setup
 
@@ -146,7 +149,7 @@ aprx = arcpy.mp.ArcGISProject('CURRENT')
 aprx.defaultGeodatabase = intmd_gdb
 arcpy.env.workspace = intmd_gdb
 
-# When you are done running part 1, please continue working on the script part 2 (below) until the STOP section (at which point you should go back to the How To document for manual work).
+# When you are done running part 1, please continue running part 2 (below) until the STOP section (at which point you should go back to the How To document for manual work).
 
 ######################################################################################################
 
@@ -177,21 +180,14 @@ arcpy.management.Project('Lake_Points', 'Lake_Points_UTM',arcpy.SpatialReference
 # Copy the transect geospatial points from Intmd.gdb to final IISD-ELA Transects Geospatial Points gdb
 arcpy.conversion.FeatureClassToFeatureClass('Lake_Points_UTM', transect_points_gdb, 'Lake_' + lake_name + '_Transect_Points')
 
-##########################################################################################
-## STOP
-##  Now you need to switch from running this script to some manual work - see the detailed instructions in the How To document.
-##  Edit Lake_Sel_UTM polygon in Intmd.gdb to go around points and match satellite imagery... to get a "corrected" outline.
-##  Also, collect METADATA for the imagery used when tracing the boundary.
-##  Check for outliers and remove them.
-## REFS
-##  Detailed instructions for this are in the associated How To documentation, here:
-##   SharePoint > ELA > Bathymetry\Metadata\Methods\Python Script and How To Doc\HowToDoc_BathymetryProcessing_IISD-ELA.docx
-##  The metadata Excel file is here:
-##   SharePoint > ELA > GIS\Data & Metadata\ELA Lakes\Polygons\Corrected\Metadata\LakePolygonsCorrected_Metadata.xlsx
-##########################################################################################
+# Now we will do a little cleanup on the lake polygon
 
-# Clean up attributes to get rid of the piles of irrelevant fields (carried over from ArcGIS Online original lake polygon)
-arcpy.DeleteField_management('Lake_' + lake_name + '_Polygon', ["OGF_ID", "WBDY_TYPE", "OFF_NAME", "GEL_IDENT", "PERMANENCY", "ACCURACY", "VERISTT_FL", "VERISTT_DT", "COMMENTS", "SYS_AREA", "SYS_PERIM", "GEO_UPD_DT", "EFF_DATE", "Layer", "RefName", "LakeNumber", "Shape_Leng", "CreationDate", "Creator", "EditDate", "Editor", "MonitoringLocationName", "CENTROID_X", "CENTROID_Y", "MaxDepth_m", "MaxDepthMeta", "BathyDate_yr", "RecentFishSurvey_yr", "Manipulations", "FishSpecies", "MaxDepth_txt", "Location_ID", "monitoring_location_id"])
+# Clean up the "Attribute Table" part of the feature class to get rid of piles of irrelevant fields (carried over from ArcGIS Online original lake polygon) and just keep what we want
+arcpy.management.DeleteField('Lake_' + lake_name + '_Polygon', "Location;Sublocatio", "KEEP_FIELDS")
+
+# Check that the above worked... essentially we only want the following columns: Location, Sublocatio (and columns we can't remove: OBJECTID, Shape, Shape_Length, Shape_Area)
+# To check, right click the "Lake_###_LA_Polygon" layer > Attribute Table
+# If it didn't work, alter the code and re-run it to get it right.
 
 # Add field (column) called 'monitoring_location_name' to attribute table
 arcpy.management.AddField('Lake_' + lake_name + '_Polygon','monitoring_location_name','TEXT')
@@ -199,7 +195,29 @@ arcpy.management.AddField('Lake_' + lake_name + '_Polygon','monitoring_location_
 # Populate "monitoring_location_name" column with "lake_name_space_quotes" (established at start) for all records
 arcpy.management.CalculateField('Lake_' + lake_name + '_Polygon', "monitoring_location_name", lake_name_space_quotes,"PYTHON3")
 
-## This is one "final output" from this exercise, so next lines are to copy it to the right places.
+## This is probably a good point to remind you to hit SAVE on the ArcGIS Pro project.
+## We've created the files, so nothing really to lose there, except would have to re-add the layers and set up the Python variables again.
+
+##########################################################################################
+## Read this section and then stop with the script and switch back to the how-to document.
+##  Now you need to switch from running this script to some manual work - see the detailed instructions in the How To document.
+##  You will:
+##    Edit Lake_Sel_UTM polygon in Intmd.gdb to go around points and match satellite imagery... to get a "corrected" outline.
+##    Compile METADATA for the imagery used when tracing the boundary.
+##    Check for outlier points and remove them.
+## References:
+##  Detailed instructions for this are in the associated How To documentation, in the bathymetry GitHub repo:
+##   https://github.com/IISD-ELA/bathymetry
+##  The metadata Excel file is here:
+##   SharePoint > ELA > GIS\Data & Metadata\ELA Lakes\Polygons\Corrected\Metadata\LakePolygonsCorrected_Metadata.xlsx
+## Now, STOP running the script and switch to manual instructions in the how-to doc,
+##  starting at "Part 2: Raster DEM".
+##########################################################################################
+
+### Continue here onward with the script, after having just documented the imagery metadata.
+# Now that the points and polygon have been cleaned up, we can continue running the next steps.
+
+## The lake polygon is now one "final output" from this exercise, so next lines are to copy it to the right places.
 # Note that this will fail if there is already a copy there (feature class with same name).
 # Copy from Intmd.gdb to Corrected Lakes gdb
 arcpy.conversion.FeatureClassToFeatureClass('Lake_' + lake_name + '_Polygon',corrected_lakes_gdb,'Lake_' + lake_name + '_Polygon') 
@@ -253,6 +271,12 @@ for lyr in aprx.listMaps(aprx.activeMap.name)[0].listLayers():
 # Note this will fail if there is already a copy there (raster with same name).
 # You need the Spatial Analyst license for this tool, this is why we load it at the start: from arcpy.sa import *
 out_raster3 = Con(Raster("Raster_FocalStats") > 0, 0, Raster("Raster_FocalStats"))
+
+# Aside: if the above output looks wrong, as a solid colour with an outline, and switching > to < above looks better, it probably means z values were positive instead of negative to begin with.
+# You can fix this by using raster calculator to multiply by -1:
+# out_raster3 = Raster("out_raster3") * -1
+
+# Save the output to intermediate database:
 out_raster3.save(intmd_gdb + r"\Raster_Zero")
 
 # Rename layer from out_raster3 to Raster_Zero (for some reason Arc doesn't add layer with name we want) - to avoid potential errors
@@ -396,10 +420,11 @@ arcpy.management.Merge('Lake_Outline;Lake_ContoursIntmdA_NoZeroes', 'Lake_' + la
 arcpy.management.Merge('Lake_Outline;Lake_ContoursIntmdB_NoZeroes', 'Lake_' + lake_name + '_B_Contours_' + contour_interval_b_str_pt + 'm', '', 'NO_SOURCE_INFO')
 
 # Clean up attributes to get rid of the piles of irrelevant fields (carried over from ArcGIS Online original lake polygon)
+# (We only want to keep the Contour field!)
 # A
-arcpy.DeleteField_management('Lake_' + lake_name + '_A_Contours_' + contour_interval_a_str_pt + 'm', ["ORIF_FID", "GEO_UPD_DT", "WBDY_TYPE", "OFF_NAME", "GEL_IDENT", "PERMANENCY", "ACCURACY", "VERISTT_FL", "VERISTT_DT", "COMMENTS", "SYS_AREA", "SYS_PERIM", "EFF_DATE", "Layer", "RefName", "LakeNumber", "Shape_Leng", "CreationDate", "Creator", "MonitoringLocationName", "CENTROID_X", "CENTROID_Y", "MaxDepth_m", "MaxDepthMeta", "BathyDate_yr", "RecentFishSurvey_yr", "Manipulations", "FishSpecies", "MaxDepth_txt", "Location_ID", "ORIF_FID", "Id", "OGF_ID", "Location", "Sublocation", "EditDate", "Editor", "monitoring_location_id", "ORIG_FID"])
+arcpy.management.DeleteField('Lake_' + lake_name + '_A_Contours_' + contour_interval_a_str_pt + 'm', "Contour", "KEEP_FIELDS")
 # B
-arcpy.DeleteField_management('Lake_' + lake_name + '_B_Contours_' + contour_interval_b_str_pt + 'm', ["ORIF_FID", "GEO_UPD_DT", "WBDY_TYPE", "OFF_NAME", "GEL_IDENT", "PERMANENCY", "ACCURACY", "VERISTT_FL", "VERISTT_DT", "COMMENTS", "SYS_AREA", "SYS_PERIM", "EFF_DATE", "Layer", "RefName", "LakeNumber", "Shape_Leng", "CreationDate", "Creator", "MonitoringLocationName", "CENTROID_X", "CENTROID_Y", "MaxDepth_m", "MaxDepthMeta", "BathyDate_yr", "RecentFishSurvey_yr", "Manipulations", "FishSpecies", "MaxDepth_txt", "Location_ID", "ORIF_FID", "Id", "OGF_ID", "Location", "Sublocation", "EditDate", "Editor", "monitoring_location_id", "ORIG_FID"])
+arcpy.management.DeleteField('Lake_' + lake_name + '_B_Contours_' + contour_interval_b_str_pt + 'm', "Contour", "KEEP_FIELDS")
 
 # Add a field (column) for "monitoring_location_name" to the feature classes
 # A
@@ -536,7 +561,7 @@ arcpy.management.JoinField("Zonal_Stats_Table", "ZoneContourLv100", "Lake_Contou
 arcpy.management.AddField("Zonal_Stats_Table", "volume_cumulative", "FLOAT")
 
 # Calculate volume...
-# The concepts and math are a bit tricky - explained in companion word doc (since long, and easier with diagrams)
+# The concepts and math are a bit tricky - explained in companion doc (since long, and easier with diagrams)
 arcpy.management.CalculateField("Zonal_Stats_Table", "volume_cumulative", "(!MeanActual! * !AREA!) - (!AREA! * !ContourMin!)", "PYTHON3")
 
 # We need to finish adding the fields we require before appending the data into our running results table
@@ -818,6 +843,7 @@ arcpy.conversion.TableToTable("Lake_" + lake_name + "_Metadata_Table",final_csvs
 ###   5) Maps
 # This section is all done manually - there is no script.
 # This is only included here so the parts of the process are outlined in both the script and the how-to document.
+# Go read the how-to document to do this section!
 
 ######################################################################################################
 
